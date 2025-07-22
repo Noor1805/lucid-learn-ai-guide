@@ -4,6 +4,8 @@ import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { openAIService } from '@/lib/openai';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -12,7 +14,11 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatBox = () => {
+interface ChatBoxProps {
+  apiKey?: string;
+}
+
+const ChatBox = ({ apiKey }: ChatBoxProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -24,6 +30,7 @@ const ChatBox = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     if (scrollRef.current) {
@@ -38,6 +45,15 @@ const ChatBox = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenAI API key to use the chat feature.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputValue,
@@ -49,17 +65,36 @@ const ChatBox = () => {
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await openAIService.getChatResponse(inputValue);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I understand your question! This is a simulated response. In a real implementation, this would connect to OpenAI's API to provide intelligent answers to your learning questions.",
+        content: response,
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Fallback response for demo
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I apologize, but I'm having trouble connecting to the AI service right now. This is a demo response to show how the chat feature works. Please check your API key and try again.",
         sender: 'ai',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiMessage]);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const TypingIndicator = () => (

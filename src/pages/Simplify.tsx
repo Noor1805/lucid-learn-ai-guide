@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import ResultCard from '@/components/ResultCard';
+import ApiKeyManager from '@/components/ApiKeyManager';
+import { openAIService } from '@/lib/openai';
+import { useToast } from '@/hooks/use-toast';
 
 const Simplify = () => {
   const [inputText, setInputText] = useState('');
@@ -13,26 +16,59 @@ const Simplify = () => {
     keyPoints: string[];
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const { toast } = useToast();
+
+  const handleApiKeySet = (key: string) => {
+    setApiKey(key);
+    if (key) {
+      openAIService.initialize(key);
+    }
+  };
 
   const handleSimplify = async () => {
     if (!inputText.trim()) return;
     
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenAI API key to use this feature.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await openAIService.simplifyText(inputText);
+      setResult(response);
+      toast({
+        title: "Text Simplified!",
+        description: "Your content has been successfully simplified."
+      });
+    } catch (error) {
+      console.error('Simplification error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to simplify text. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Fallback to dummy data for demo
       setResult({
-        summary: "This is a simplified version of your text. In a real implementation, this would connect to OpenAI's API to provide intelligent text simplification, making complex concepts easier to understand while maintaining the core meaning and important details.",
+        summary: "This is a simplified version of your text. The AI integration encountered an error, but here's a demo response to show how the feature works.",
         keyPoints: [
           "Main concept extracted from the original text",
-          "Key supporting details and evidence",
+          "Key supporting details and evidence", 
           "Important terminology and definitions",
           "Practical applications or examples",
           "Summary of conclusions or takeaways"
         ]
       });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const handleClear = () => {
@@ -68,6 +104,8 @@ const Simplify = () => {
             Our AI breaks down difficult concepts while preserving essential information.
           </p>
         </motion.div>
+
+        <ApiKeyManager onApiKeySet={handleApiKeySet} />
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}

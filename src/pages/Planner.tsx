@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import ApiKeyManager from '@/components/ApiKeyManager';
+import { openAIService } from '@/lib/openai';
+import { useToast } from '@/hooks/use-toast';
 
 interface StudyTopic {
   id: string;
@@ -25,6 +28,15 @@ const Planner = () => {
   const [targetDate, setTargetDate] = useState('');
   const [studyPlan, setStudyPlan] = useState<StudyPlan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const { toast } = useToast();
+
+  const handleApiKeySet = (key: string) => {
+    setApiKey(key);
+    if (key) {
+      openAIService.initialize(key);
+    }
+  };
 
   const addTopic = () => {
     if (!newTopic.trim()) return;
@@ -46,10 +58,34 @@ const Planner = () => {
   const generatePlan = async () => {
     if (topics.length === 0 || !targetDate) return;
     
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your OpenAI API key to use this feature.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate AI plan generation
-    setTimeout(() => {
+    try {
+      const topicNames = topics.map(t => t.name);
+      const response = await openAIService.generateStudyPlan(topicNames, targetDate);
+      setStudyPlan(response);
+      toast({
+        title: "Study Plan Generated!",
+        description: "Your personalized study plan is ready."
+      });
+    } catch (error) {
+      console.error('Plan generation error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate study plan. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Fallback to dummy data for demo
       const dummyPlan: StudyPlan[] = topics.map((topic, index) => ({
         week: index + 1,
         topic: topic.name,
@@ -63,8 +99,9 @@ const Planner = () => {
       }));
       
       setStudyPlan(dummyPlan);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -98,6 +135,8 @@ const Planner = () => {
             Our AI generates optimal learning paths based on your subjects and deadlines.
           </p>
         </motion.div>
+
+        <ApiKeyManager onApiKeySet={handleApiKeySet} />
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}
