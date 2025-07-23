@@ -14,7 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      flashcards: {
+        Row: {
+          cards: Json
+          created_at: string
+          deck_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cards?: Json
+          created_at?: string
+          deck_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cards?: Json
+          created_at?: string
+          deck_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          created_at: string
+          id: string
+          key_points: string[] | null
+          original_text: string
+          simplified_text: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_points?: string[] | null
+          original_text: string
+          simplified_text: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_points?: string[] | null
+          original_text?: string
+          simplified_text?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quizzes: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          questions: Json
+          score: number | null
+          title: string
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          questions?: Json
+          score?: number | null
+          title: string
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          questions?: Json
+          score?: number | null
+          title?: string
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      study_plans: {
+        Row: {
+          created_at: string
+          id: string
+          plan_data: Json
+          progress: number | null
+          target_date: string
+          title: string
+          topics: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          plan_data?: Json
+          progress?: number | null
+          target_date: string
+          title: string
+          topics: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_data?: Json
+          progress?: number | null
+          target_date?: string
+          title?: string
+          topics?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          created_at: string
+          daily_streak: number | null
+          flashcards_created: number | null
+          id: string
+          last_activity_date: string | null
+          notes_saved: number | null
+          quizzes_completed: number | null
+          study_plans_created: number | null
+          total_study_hours: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_streak?: number | null
+          flashcards_created?: number | null
+          id?: string
+          last_activity_date?: string | null
+          notes_saved?: number | null
+          quizzes_completed?: number | null
+          study_plans_created?: number | null
+          total_study_hours?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_streak?: number | null
+          flashcards_created?: number | null
+          id?: string
+          last_activity_date?: string | null
+          notes_saved?: number | null
+          quizzes_completed?: number | null
+          study_plans_created?: number | null
+          total_study_hours?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
