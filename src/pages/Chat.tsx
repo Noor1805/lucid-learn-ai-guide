@@ -4,7 +4,7 @@ import { MessageCircle, Brain, Sparkles, Zap } from 'lucide-react';
 import ChatBox from '@/components/ChatBox';
 import ApiKeyManager from '@/components/ApiKeyManager';
 import { Card } from '@/components/ui/card';
-import { openAIService } from '@/lib/openai';
+import { geminiService } from '@/lib/gemini';
 
 const Chat = () => {
   const [apiKey, setApiKey] = useState('');
@@ -12,7 +12,7 @@ const Chat = () => {
   const handleApiKeySet = (key: string) => {
     setApiKey(key);
     if (key) {
-      openAIService.initialize(key);
+      geminiService.initialize(key);
     }
   };
 

@@ -16,7 +16,7 @@ const ApiKeyManager = ({ onApiKeySet }: ApiKeyManagerProps) => {
   const [isStored, setIsStored] = useState(false);
 
   useEffect(() => {
-    const storedKey = localStorage.getItem('openai_api_key');
+    const storedKey = localStorage.getItem('gemini_api_key');
     if (storedKey) {
       setApiKey(storedKey);
       setIsStored(true);
@@ -26,14 +26,14 @@ const ApiKeyManager = ({ onApiKeySet }: ApiKeyManagerProps) => {
 
   const handleSaveKey = () => {
     if (apiKey.trim()) {
-      localStorage.setItem('openai_api_key', apiKey.trim());
+      localStorage.setItem('gemini_api_key', apiKey.trim());
       setIsStored(true);
       onApiKeySet(apiKey.trim());
     }
   };
 
   const handleClearKey = () => {
-    localStorage.removeItem('openai_api_key');
+    localStorage.removeItem('gemini_api_key');
     setApiKey('');
     setIsStored(false);
     onApiKeySet('');
@@ -49,7 +49,7 @@ const ApiKeyManager = ({ onApiKeySet }: ApiKeyManagerProps) => {
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <Key className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">OpenAI API Configuration</h3>
+            <h3 className="text-lg font-semibold">Gemini API Configuration</h3>
             {isStored && (
               <div className="flex items-center space-x-1 text-green-400 text-sm">
                 <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -64,12 +64,12 @@ const ApiKeyManager = ({ onApiKeySet }: ApiKeyManagerProps) => {
               Your API key is stored locally in your browser and never sent to our servers. 
               Get your API key from{' '}
               <a 
-                href="https://platform.openai.com/api-keys" 
+                href="https://aistudio.google.com/app/apikey" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-yellow-400 hover:underline"
               >
-                OpenAI Platform
+                Google AI Studio
               </a>
             </AlertDescription>
           </Alert>
@@ -78,7 +78,7 @@ const ApiKeyManager = ({ onApiKeySet }: ApiKeyManagerProps) => {
             <div className="flex-1 relative">
               <Input
                 type={showKey ? 'text' : 'password'}
-                placeholder="sk-..."
+                placeholder="AIza..."
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 className="bg-white/5 border-white/20 pr-10"

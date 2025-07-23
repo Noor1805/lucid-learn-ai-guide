@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import ResultCard from '@/components/ResultCard';
 import ApiKeyManager from '@/components/ApiKeyManager';
-import { openAIService } from '@/lib/openai';
+import { geminiService } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
 const Simplify = () => {
@@ -22,7 +22,7 @@ const Simplify = () => {
   const handleApiKeySet = (key: string) => {
     setApiKey(key);
     if (key) {
-      openAIService.initialize(key);
+      geminiService.initialize(key);
     }
   };
 
@@ -32,7 +32,7 @@ const Simplify = () => {
     if (!apiKey) {
       toast({
         title: "API Key Required",
-        description: "Please enter your OpenAI API key to use this feature.",
+        description: "Please enter your Gemini API key to use this feature.",
         variant: "destructive"
       });
       return;
@@ -41,7 +41,7 @@ const Simplify = () => {
     setIsLoading(true);
     
     try {
-      const response = await openAIService.simplifyText(inputText);
+      const response = await geminiService.simplifyText(inputText);
       setResult(response);
       toast({
         title: "Text Simplified!",

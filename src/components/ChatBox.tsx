@@ -4,7 +4,7 @@ import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { openAIService } from '@/lib/openai';
+import { geminiService } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
 interface Message {
@@ -48,7 +48,7 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
     if (!apiKey) {
       toast({
         title: "API Key Required",
-        description: "Please enter your OpenAI API key to use the chat feature.",
+        description: "Please enter your Gemini API key to use the chat feature.",
         variant: "destructive"
       });
       return;
@@ -66,7 +66,7 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
     setIsLoading(true);
 
     try {
-      const response = await openAIService.getChatResponse(inputValue);
+      const response = await geminiService.getChatResponse(inputValue);
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),

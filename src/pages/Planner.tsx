@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ApiKeyManager from '@/components/ApiKeyManager';
-import { openAIService } from '@/lib/openai';
+import { geminiService } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudyTopic {
@@ -34,7 +34,7 @@ const Planner = () => {
   const handleApiKeySet = (key: string) => {
     setApiKey(key);
     if (key) {
-      openAIService.initialize(key);
+      geminiService.initialize(key);
     }
   };
 
@@ -61,7 +61,7 @@ const Planner = () => {
     if (!apiKey) {
       toast({
         title: "API Key Required",
-        description: "Please enter your OpenAI API key to use this feature.",
+        description: "Please enter your Gemini API key to use this feature.",
         variant: "destructive"
       });
       return;
@@ -71,7 +71,7 @@ const Planner = () => {
     
     try {
       const topicNames = topics.map(t => t.name);
-      const response = await openAIService.generateStudyPlan(topicNames, targetDate);
+      const response = await geminiService.generateStudyPlan(topicNames, targetDate);
       setStudyPlan(response);
       toast({
         title: "Study Plan Generated!",
