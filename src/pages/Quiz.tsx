@@ -88,14 +88,28 @@ const Quiz = () => {
         await supabase.from('quizzes').insert({
           user_id: user.id,
           title: quiz.title,
-          questions: quiz.questions,
+          questions: quiz.questions as any,
           score,
           total_questions: quiz.questions.length,
           completed_at: new Date().toISOString(),
         });
 
-        // Update user stats
-        await supabase.rpc('increment_quiz_count', { user_id: user.id });
+        // Update user stats - for now we'll handle this manually
+        const { data: currentStats } = await supabase
+          .from('user_stats')
+          .select('quizzes_completed')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (currentStats) {
+          await supabase
+            .from('user_stats')
+            .update({ 
+              quizzes_completed: (currentStats.quizzes_completed || 0) + 1,
+              last_activity_date: new Date().toISOString().split('T')[0]
+            })
+            .eq('user_id', user.id);
+        }
       } catch (error) {
         console.error('Error saving quiz:', error);
       }

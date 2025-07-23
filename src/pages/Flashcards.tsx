@@ -49,7 +49,10 @@ const Flashcards = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSavedDecks(data || []);
+      setSavedDecks((data || []).map(deck => ({
+        ...deck,
+        cards: deck.cards as unknown as Flashcard[]
+      })));
     } catch (error) {
       console.error('Error loading decks:', error);
     }
@@ -93,7 +96,7 @@ const Flashcards = () => {
       const { error } = await supabase.from('flashcards').insert({
         user_id: user.id,
         deck_name: currentDeck.deck_name,
-        cards: currentDeck.cards,
+        cards: currentDeck.cards as any,
       });
 
       if (error) throw error;
