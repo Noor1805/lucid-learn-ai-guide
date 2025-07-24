@@ -11,23 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Brain, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { geminiService } from '@/lib/gemini';
 
-interface Question {
-  question: string;
-  options: string[];
-  correct: number;
-  explanation?: string;
-}
-
-interface Quiz {
-  title: string;
-  questions: Question[];
-}
 
 const Quiz = () => {
   const [inputText, setInputText] = useState('');
-  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [quiz, setQuiz] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();

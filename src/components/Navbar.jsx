@@ -25,16 +25,10 @@ const Navbar = () => {
 
   const userNavItems = [
     { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Simplify', path: '/simplify' },
-    { name: 'Quiz', path: '/quiz' },
-    { name: 'Flashcards', path: '/flashcards' },
-    { name: 'Notes', path: '/notes' },
-    { name: 'Planner', path: '/planner' },
-    { name: 'Chat', path: '/chat' },
   ];
 
   const navItems = user ? userNavItems : guestNavItems;
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path) => location.pathname === path;
 
   const handleSignOut = async () => {
     await signOut();

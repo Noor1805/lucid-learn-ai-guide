@@ -1,24 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export class GeminiService {
-  private genAI: GoogleGenerativeAI | null = null;
+  private genAI: GoogleGenerativeAI;
 
-  constructor(apiKey?: string) {
-    if (apiKey) {
-      this.initialize(apiKey);
-    }
-  }
-
-  initialize(apiKey: string) {
-    this.genAI = new GoogleGenerativeAI(apiKey);
+  constructor() {
+    // Using integrated API key
+    this.genAI = new GoogleGenerativeAI("AIzaSyC-w7q5zyDBhRg7mI5nFHCVLx2nY8FvKkI");
   }
 
   async simplifyText(
   text: string
 ): Promise<{ summary: string; keyPoints: string[] }> {
-  if (!this.genAI) {
-    throw new Error("Gemini not initialized");
-  }
 
   try {
     const model = this.genAI.getGenerativeModel({
@@ -81,9 +73,6 @@ Please simplify this text: ${text}`;
       tasks: string[];
     }>
   > {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const weeksAvailable = Math.ceil(
@@ -149,9 +138,6 @@ Make it realistic and well-structured.`;
   }
 
   async getChatResponse(message: string): Promise<string> {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -193,9 +179,6 @@ Student question: ${message}`;
       explanation?: string;
     }>;
   }> {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -257,9 +240,6 @@ Create 5-10 multiple choice questions that test understanding of the key concept
   async generateFlashcards(
     text: string
   ): Promise<Array<{ front: string; back: string }>> {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -337,9 +317,6 @@ Instructions:
     concepts: string[];
     tips: string[];
   }> {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -413,9 +390,6 @@ Provide detailed step-by-step solution with explanations.`;
     skill_recommendations: string[];
     certification_suggestions: string[];
   }> {
-    if (!this.genAI) {
-      throw new Error("Gemini not initialized");
-    }
 
     try {
       const model = this.genAI.getGenerativeModel({

@@ -11,10 +11,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Target, Plus, RotateCcw, Save, BookOpen, ArrowLeft, ArrowRight } from 'lucide-react';
 import { geminiService } from '@/lib/gemini';
 
-interface Flashcard {
-  front: string;
-  back: string;
-}
 
 interface FlashcardDeck {
   id?: string;

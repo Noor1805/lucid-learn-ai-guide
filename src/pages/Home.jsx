@@ -163,38 +163,74 @@ const Home = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Powerful <span className="gradient-text">AI Tools</span> for Learning
+              Complete <span className="gradient-text">AI Learning</span> Suite
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Discover our suite of AI-powered educational tools designed to make learning 
-              more efficient, engaging, and effective.
+              Everything you need to enhance your learning experience with AI-powered tools.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {[
+              ...features,
+              {
+                icon: Brain,
+                title: 'AI Quiz Generator',
+                description: 'Create interactive quizzes from any text content to test your knowledge.',
+                href: '/quiz',
+                color: 'from-green-500 to-teal-500',
+              },
+              {
+                icon: Sparkles,
+                title: 'Smart Flashcards',
+                description: 'Generate flashcards automatically and review them with spaced repetition.',
+                href: '/flashcards',
+                color: 'from-orange-500 to-yellow-500',
+              },
+              {
+                icon: Target,
+                title: 'Note Manager',
+                description: 'Organize and manage your study notes with AI-powered insights.',
+                href: '/notes',
+                color: 'from-indigo-500 to-blue-500',
+              },
+              {
+                icon: Brain,
+                title: 'Problem Solver',
+                description: 'Get step-by-step solutions to complex problems across all subjects.',
+                href: '/sandbox',
+                color: 'from-red-500 to-pink-500',
+              },
+              {
+                icon: Users,
+                title: 'Career Explorer',
+                description: 'Discover career paths and opportunities related to your studies.',
+                href: '/career',
+                color: 'from-purple-500 to-indigo-500',
+              },
+            ].map((feature, index) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
+                transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
                 className="group"
               >
                 <Link to={feature.href}>
-                  <Card className="glass-card p-8 h-full hover:glow-primary transition-all duration-300">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} p-4 mb-6 group-hover:scale-110 transition-transform`}>
+                  <Card className="glass-card p-6 h-full hover:glow-primary transition-all duration-300">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${feature.color} p-3 mb-4 group-hover:scale-110 transition-transform`}>
                       <feature.icon className="w-full h-full text-white" />
                     </div>
-                    <h3 className="text-2xl font-semibold mb-4 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-semibold mb-3 group-hover:text-primary transition-colors">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground text-sm leading-relaxed">
                       {feature.description}
                     </p>
-                    <div className="mt-6 flex items-center text-primary group-hover:translate-x-2 transition-transform">
-                      <span className="text-sm font-medium">Try it now</span>
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                    <div className="mt-4 flex items-center text-primary group-hover:translate-x-2 transition-transform">
+                      <span className="text-xs font-medium">Try it now</span>
+                      <ArrowRight className="h-3 w-3 ml-2" />
                     </div>
                   </Card>
                 </Link>
