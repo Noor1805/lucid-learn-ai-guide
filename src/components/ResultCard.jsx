@@ -4,14 +4,7 @@ import { Sparkles, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
-interface ResultCardProps {
-  title: string;
-  content: string;
-  keyPoints?: string[];
-  type?: 'summary' | 'plan' | 'quiz';
-}
-
-const ResultCard = ({ title, content, keyPoints, type = 'summary' }: ResultCardProps) => {
+const ResultCard = ({ title, content, keyPoints, type = 'summary' }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {

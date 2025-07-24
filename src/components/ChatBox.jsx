@@ -7,19 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { geminiService } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
-
-interface ChatBoxProps {
-  apiKey?: string;
-}
-
-const ChatBox = ({ apiKey }: ChatBoxProps) => {
-  const [messages, setMessages] = useState<Message[]>([
+const ChatBox = ({ apiKey }) => {
+  const [messages, setMessages] = useState([
     {
       id: '1',
       content: "Hello! I'm your AI learning assistant. Ask me anything about your studies, and I'll help simplify complex concepts or solve your doubts!",
@@ -29,7 +18,7 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef(null);
   const { toast } = useToast();
 
   const scrollToBottom = () => {
@@ -54,7 +43,7 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
       return;
     }
 
-    const userMessage: Message = {
+    const userMessage = {
       id: Date.now().toString(),
       content: inputValue,
       sender: 'user',
@@ -67,14 +56,14 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
 
     try {
       const response = await geminiService.getChatResponse(inputValue);
-      
-      const aiMessage: Message = {
+
+      const aiMessage = {
         id: (Date.now() + 1).toString(),
         content: response,
         sender: 'ai',
         timestamp: new Date(),
       };
-      
+
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Chat error:', error);
@@ -83,9 +72,9 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
         description: error instanceof Error ? error.message : "Failed to get response. Please try again.",
         variant: "destructive"
       });
-      
-      // Fallback response for demo
-      const aiMessage: Message = {
+
+      // fallback demo response
+      const aiMessage = {
         id: (Date.now() + 1).toString(),
         content: "I apologize, but I'm having trouble connecting to the AI service right now. This is a demo response to show how the chat feature works. Please check your API key and try again.",
         sender: 'ai',
@@ -158,9 +147,9 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
                     <div>
                       <p className="text-sm">{message.content}</p>
                       <span className="text-xs opacity-70 mt-1 block">
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
                         })}
                       </span>
                     </div>
@@ -169,7 +158,7 @@ const ChatBox = ({ apiKey }: ChatBoxProps) => {
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
