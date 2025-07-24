@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -13,15 +13,19 @@ export class GeminiService {
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
-  async simplifyText(text: string): Promise<{ summary: string; keyPoints: string[] }> {
-    if (!this.genAI) {
-      throw new Error('Gemini not initialized');
-    }
+  async simplifyText(
+  text: string
+): Promise<{ summary: string; keyPoints: string[] }> {
+  if (!this.genAI) {
+    throw new Error("Gemini not initialized");
+  }
 
-    try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
-      const prompt = `You are an educational AI assistant. Your task is to simplify complex text while preserving important information. 
+  try {
+    const model = this.genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+    });
+
+    const prompt = `You are an educational AI assistant. Your task is to simplify complex text while preserving important information.
 
 Return your response in this exact JSON format:
 {
@@ -33,52 +37,64 @@ Make the summary concise but comprehensive. Extract 3-5 key points as separate i
 
 Please simplify this text: ${text}`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const content = response.text();
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const content = response.text();
 
-      if (!content) {
-        throw new Error('No response from Gemini');
-      }
-
-      try {
-        return JSON.parse(content);
-      } catch (parseError) {
-        // Fallback if JSON parsing fails
-        return {
-          summary: content,
-          keyPoints: [
-            'Main concept from the original text',
-            'Supporting details and evidence',
-            'Key terminology and definitions',
-            'Practical applications',
-            'Important conclusions'
-          ]
-        };
-      }
-    } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw new Error('Failed to simplify text. Please check your API key and try again.');
+    if (!content) {
+      throw new Error("No response from Gemini");
     }
-  }
 
-  async generateStudyPlan(topics: string[], targetDate: string): Promise<Array<{
-    week: number;
-    topic: string;
-    hours: number;
-    tasks: string[];
-  }>> {
+    try {
+      const cleanedContent = content.replace(/```json|```/g, "").trim();
+      return JSON.parse(cleanedContent);
+    } catch (parseError) {
+    
+      return {
+        summary: content,
+        keyPoints: [
+          "Main concept from the original text",
+          "Supporting details and evidence",
+          "Key terminology and definitions",
+          "Practical applications",
+          "Important conclusions",
+        ],
+      };
+    }
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error(
+      "Failed to simplify text. Please check your API key and try again."
+    );
+  }
+}
+
+
+  async generateStudyPlan(
+    topics: string[],
+    targetDate: string
+  ): Promise<
+    Array<{
+      week: number;
+      topic: string;
+      hours: number;
+      tasks: string[];
+    }>
+  > {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
       const weeksAvailable = Math.ceil(
-        (new Date(targetDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 7)
+        (new Date(targetDate).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24 * 7)
       );
 
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
       const prompt = `You are an educational AI that creates personalized study plans. 
 
 Return your response as a JSON array with this exact format:
@@ -95,7 +111,7 @@ Create a realistic study plan that distributes topics evenly across the availabl
 Each week should have 4-6 specific, actionable tasks.
 Hours should be reasonable (5-15 per week depending on topic complexity).
 
-Create a study plan for these topics: ${topics.join(', ')}. 
+Create a study plan for these topics: ${topics.join(", ")}. 
 Target completion date: ${targetDate}. 
 Available weeks: ${weeksAvailable}.
 Make it realistic and well-structured.`;
@@ -105,7 +121,7 @@ Make it realistic and well-structured.`;
       const content = response.text();
 
       if (!content) {
-        throw new Error('No response from Gemini');
+        throw new Error("No response from Gemini");
       }
 
       try {
@@ -120,24 +136,28 @@ Make it realistic and well-structured.`;
             `Review fundamentals of ${topic}`,
             `Practice exercises and problems`,
             `Complete assignments and projects`,
-            `Take practice tests and review`
-          ]
+            `Take practice tests and review`,
+          ],
         }));
       }
     } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw new Error('Failed to generate study plan. Please check your API key and try again.');
+      console.error("Gemini API Error:", error);
+      throw new Error(
+        "Failed to generate study plan. Please check your API key and try again."
+      );
     }
   }
 
   async getChatResponse(message: string): Promise<string> {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
       const prompt = `You are LearnMate, an intelligent educational AI assistant. Your purpose is to help students learn better by:
 
 - Explaining complex concepts in simple terms
@@ -152,21 +172,36 @@ Student question: ${message}`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      return response.text() || 'I apologize, but I couldn\'t generate a response. Please try again.';
+      return (
+        response.text() ||
+        "I apologize, but I couldn't generate a response. Please try again."
+      );
     } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw new Error('Failed to get chat response. Please check your API key and try again.');
+      console.error("Gemini API Error:", error);
+      throw new Error(
+        "Failed to get chat response. Please check your API key and try again."
+      );
     }
   }
 
-  async generateQuiz(text: string): Promise<{ title: string; questions: Array<{ question: string; options: string[]; correct: number; explanation?: string }> }> {
+  async generateQuiz(text: string): Promise<{
+    title: string;
+    questions: Array<{
+      question: string;
+      options: string[];
+      correct: number;
+      explanation?: string;
+    }>;
+  }> {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
       const prompt = `Create a quiz from this text: "${text}". 
 
 Return JSON in this exact format:
@@ -198,64 +233,94 @@ Create 5-10 multiple choice questions that test understanding of the key concept
               question: "What is the main topic discussed in this text?",
               options: ["Option A", "Option B", "Option C", "Option D"],
               correct: 0,
-              explanation: "This is a sample question."
-            }
-          ]
+              explanation: "This is a sample question.",
+            },
+          ],
         };
       }
     } catch (error) {
-      console.error('Gemini API Error:', error);
+      console.error("Gemini API Error:", error);
       return {
-        title: "Quiz: Understanding Key Concepts", 
+        title: "Quiz: Understanding Key Concepts",
         questions: [
           {
             question: "What is the main topic discussed in this text?",
             options: ["Option A", "Option B", "Option C", "Option D"],
             correct: 0,
-            explanation: "This is a sample question."
-          }
-        ]
+            explanation: "This is a sample question.",
+          },
+        ],
       };
     }
   }
 
-  async generateFlashcards(text: string): Promise<Array<{ front: string; back: string }>> {
+  async generateFlashcards(
+    text: string
+  ): Promise<Array<{ front: string; back: string }>> {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
-      const prompt = `Create flashcards from this text: "${text}".
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
 
-Return JSON array in this exact format:
-[
+      const prompt = `
+You are a study assistant. Read the text below and generate helpful flashcards.
+
+Text:
+"""
+${text}
+"""
+
+Instructions:
+- Create 5 to 15 flashcards.
+- Each flashcard should be in this format:
   {
-    "front": "Question or term",
-    "back": "Answer or definition"
+    "front": "A concise question or term",
+    "back": "A clear answer or explanation"
   }
-]
-
-Create 5-15 flashcards that help memorize key concepts, terms, and facts.`;
+- Cover key concepts, definitions, facts, and important details.
+- Return ONLY a JSON array of flashcards. No extra commentary.
+`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const content = response.text();
+      const content = await response.text();
 
       try {
-        return JSON.parse(content);
+        const parsed = JSON.parse(content);
+
+        // Validate if parsed is actually an array of flashcards
+        if (
+          Array.isArray(parsed) &&
+          parsed.every((card) => card.front && card.back)
+        ) {
+          return parsed;
+        } else {
+          throw new Error("Invalid flashcard format");
+        }
       } catch (parseError) {
+        console.warn(
+          "Gemini JSON parse failed. Falling back to dummy flashcards."
+        );
         return [
-          { front: "Sample Question", back: "Sample Answer" },
-          { front: "Key Term", back: "Definition" }
+          {
+            front: "What is a flashcard?",
+            back: "A learning tool to help memorize information.",
+          },
+          { front: "Sample Term", back: "Sample Definition" },
         ];
       }
     } catch (error) {
-      console.error('Gemini API Error:', error);
+      console.error("Gemini API Error (generateFlashcards):", error);
       return [
-        { front: "Sample Question", back: "Sample Answer" },
-        { front: "Key Term", back: "Definition" }
+        {
+          front: "What is a flashcard?",
+          back: "A learning tool to help memorize information.",
+        },
+        { front: "Sample Term", back: "Sample Definition" },
       ];
     }
   }
@@ -263,17 +328,24 @@ Create 5-15 flashcards that help memorize key concepts, terms, and facts.`;
   async solveProblemStepByStep(problem: string): Promise<{
     problem: string;
     answer: string;
-    steps: Array<{ step: number; description: string; explanation: string; formula?: string }>;
+    steps: Array<{
+      step: number;
+      description: string;
+      explanation: string;
+      formula?: string;
+    }>;
     concepts: string[];
     tips: string[];
   }> {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
       const prompt = `Solve this problem step by step: "${problem}"
 
 Return JSON in this exact format:
@@ -308,21 +380,21 @@ Provide detailed step-by-step solution with explanations.`;
             {
               step: 1,
               description: "Analyze the problem",
-              explanation: "First we need to understand what's being asked"
-            }
+              explanation: "First we need to understand what's being asked",
+            },
           ],
           concepts: ["Problem solving"],
-          tips: ["Take it step by step"]
+          tips: ["Take it step by step"],
         };
       }
     } catch (error) {
-      console.error('Gemini API Error:', error);
+      console.error("Gemini API Error:", error);
       return {
         problem: problem,
         answer: "Unable to solve at this time",
         steps: [],
         concepts: [],
-        tips: ["Try breaking the problem into smaller parts"]
+        tips: ["Try breaking the problem into smaller parts"],
       };
     }
   }
@@ -342,12 +414,14 @@ Provide detailed step-by-step solution with explanations.`;
     certification_suggestions: string[];
   }> {
     if (!this.genAI) {
-      throw new Error('Gemini not initialized');
+      throw new Error("Gemini not initialized");
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+      });
+
       const prompt = `Explore career paths related to: "${concept}"
 
 Return JSON in this exact format:
@@ -385,22 +459,23 @@ Provide 3-5 relevant career paths with current market information.`;
               skills_required: [concept, "Problem solving", "Communication"],
               salary_range: "$50,000 - $80,000",
               growth_outlook: "Positive",
-              education_requirements: "Bachelor's degree or equivalent experience",
-              related_fields: ["Technology", "Engineering"]
-            }
+              education_requirements:
+                "Bachelor's degree or equivalent experience",
+              related_fields: ["Technology", "Engineering"],
+            },
           ],
           industry_trends: [`Growing demand for ${concept} expertise`],
           skill_recommendations: [concept, "Critical thinking"],
-          certification_suggestions: [`${concept} certification`]
+          certification_suggestions: [`${concept} certification`],
         };
       }
     } catch (error) {
-      console.error('Gemini API Error:', error);
+      console.error("Gemini API Error:", error);
       return {
         career_paths: [],
         industry_trends: [],
         skill_recommendations: [],
-        certification_suggestions: []
+        certification_suggestions: [],
       };
     }
   }
