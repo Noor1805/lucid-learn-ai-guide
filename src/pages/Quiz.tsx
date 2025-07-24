@@ -11,12 +11,23 @@ import { useToast } from '@/hooks/use-toast';
 import { Brain, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { geminiService } from '@/lib/gemini';
 
+interface Question {
+  question: string;
+  options: string[];
+  correct: number;
+  explanation?: string;
+}
+
+interface Quiz {
+  title: string;
+  questions: Question[];
+}
 
 const Quiz = () => {
   const [inputText, setInputText] = useState('');
-  const [quiz, setQuiz] = useState(null);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
@@ -50,14 +61,14 @@ const Quiz = () => {
     }
   };
 
-  const handleAnswerSelect = (answerIndex) => {
+  const handleAnswerSelect = (answerIndex: number) => {
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestion] = answerIndex;
     setSelectedAnswers(newAnswers);
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < quiz.questions.length - 1) {
+    if (currentQuestion < quiz!.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       finishQuiz();
@@ -77,7 +88,7 @@ const Quiz = () => {
         await supabase.from('quizzes').insert({
           user_id: user.id,
           title: quiz.title,
-          questions: quiz.questions,
+          questions: quiz.questions as any,
           score,
           total_questions: quiz.questions.length,
           completed_at: new Date().toISOString(),

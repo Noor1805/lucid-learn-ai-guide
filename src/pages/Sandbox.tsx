@@ -8,10 +8,24 @@ import { useToast } from '@/hooks/use-toast';
 import { Calculator, RefreshCw, Lightbulb, ArrowRight, BookOpen, Target } from 'lucide-react';
 import { geminiService } from '@/lib/gemini';
 
+interface SolutionStep {
+  step: number;
+  description: string;
+  explanation: string;
+  formula?: string;
+}
+
+interface Solution {
+  problem: string;
+  answer: string;
+  steps: SolutionStep[];
+  concepts: string[];
+  tips: string[];
+}
 
 const Sandbox = () => {
   const [problem, setProblem] = useState('');
-  const [solution, setSolution] = useState(null);
+  const [solution, setSolution] = useState<Solution | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -48,7 +62,7 @@ const Sandbox = () => {
     }
   };
 
-  const loadSampleProblem = (sampleProblem) => {
+  const loadSampleProblem = (sampleProblem: string) => {
     setProblem(sampleProblem);
     setSolution(null);
   };

@@ -15,7 +15,7 @@ const CreateNote = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !paragraph) {
@@ -61,9 +61,7 @@ const CreateNote = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block font-semibold text-white mb-1">
-                Heading
-              </label>
+              <label className="block font-semibold text-white mb-1">Heading</label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -74,9 +72,7 @@ const CreateNote = () => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-1">
-                Paragraph
-              </label>
+              <label className="block text-white font-semibold mb-1">Paragraph</label>
               <Textarea
                 value={paragraph}
                 onChange={(e) => setParagraph(e.target.value)}
@@ -98,3 +94,5 @@ const CreateNote = () => {
 };
 
 export default CreateNote;
+
+

@@ -5,12 +5,29 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Briefcase, TrendingUp, DollarSign, Users, Search, ExternalLink } from 'lucide-react';
+import { Briefcase, TrendingUp, DollarSign, MapPin, Users, Search, ExternalLink } from 'lucide-react';
 import { geminiService } from '@/lib/gemini';
+
+interface CareerPath {
+  title: string;
+  description: string;
+  skills_required: string[];
+  salary_range: string;
+  growth_outlook: string;
+  education_requirements: string;
+  related_fields: string[];
+}
+
+interface JobMarketData {
+  career_paths: CareerPath[];
+  industry_trends: string[];
+  skill_recommendations: string[];
+  certification_suggestions: string[];
+}
 
 const CareerConnect = () => {
   const [concept, setConcept] = useState('');
-  const [careerData, setCareerData] = useState(null);
+  const [careerData, setCareerData] = useState<JobMarketData | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -52,7 +69,7 @@ const CareerConnect = () => {
     }
   };
 
-  const loadConcept = (selectedConcept) => {
+  const loadConcept = (selectedConcept: string) => {
     setConcept(selectedConcept);
     setCareerData(null);
   };
@@ -94,7 +111,7 @@ const CareerConnect = () => {
                 className="bg-background/50"
                 onKeyPress={(e) => e.key === 'Enter' && exploreCareer()}
               />
-              <Button
+              <Button 
                 onClick={exploreCareer}
                 disabled={loading || !concept.trim()}
                 className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
@@ -206,16 +223,11 @@ const CareerConnect = () => {
                           </div>
                         )}
 
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
                           className="w-full mt-4"
-                          onClick={() =>
-                            window.open(
-                              `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(career.title)}`,
-                              '_blank'
-                            )
-                          }
+                          onClick={() => window.open(`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(career.title)}`, '_blank')}
                         >
                           <ExternalLink className="mr-2 h-4 w-4" />
                           View Jobs on LinkedIn
@@ -314,7 +326,10 @@ const CareerConnect = () => {
                 Enter any skill, technology, or concept to explore related career opportunities and see how your interests translate to real-world jobs.
               </p>
               <div className="flex justify-center">
-                <Button onClick={() => loadConcept('Data Science')} variant="outline">
+                <Button 
+                  onClick={() => loadConcept('Data Science')}
+                  variant="outline"
+                >
                   Try "Data Science" as an example
                 </Button>
               </div>

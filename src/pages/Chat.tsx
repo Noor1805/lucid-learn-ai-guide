@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Brain, Sparkles, Zap } from 'lucide-react';
 import ChatBox from '@/components/ChatBox';
-
+import ApiKeyManager from '@/components/ApiKeyManager';
 import { Card } from '@/components/ui/card';
 import { geminiService } from '@/lib/gemini';
 
 const Chat = () => {
+  const [apiKey, setApiKey] = useState('');
+
+  const handleApiKeySet = (key: string) => {
+    setApiKey(key);
+    if (key) {
+      geminiService.initialize(key);
+    }
+  };
 
   const features = [
     {
@@ -74,6 +82,8 @@ const Chat = () => {
           ))}
         </motion.div>
 
+        <ApiKeyManager onApiKeySet={handleApiKeySet} />
+
         {/* Main Chat Interface */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -81,7 +91,7 @@ const Chat = () => {
           transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <ChatBox />
+          <ChatBox apiKey={apiKey} />
         </motion.div>
 
         {/* Quick Questions */}

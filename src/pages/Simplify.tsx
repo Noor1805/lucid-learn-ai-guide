@@ -5,18 +5,38 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import ResultCard from '@/components/ResultCard';
-
+import ApiKeyManager from '@/components/ApiKeyManager';
 import { geminiService } from '@/lib/gemini';
 import { useToast } from '@/hooks/use-toast';
 
 const Simplify = () => {
   const [inputText, setInputText] = useState('');
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<{
+    summary: string;
+    keyPoints: string[];
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
   const { toast } = useToast();
+
+  const handleApiKeySet = (key: string) => {
+    setApiKey(key);
+    if (key) {
+      geminiService.initialize(key);
+    }
+  };
 
   const handleSimplify = async () => {
     if (!inputText.trim()) return;
+    
+    if (!apiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your Gemini API key to use this feature.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsLoading(true);
     
@@ -84,6 +104,8 @@ const Simplify = () => {
             Our AI breaks down difficult concepts while preserving essential information.
           </p>
         </motion.div>
+
+        <ApiKeyManager onApiKeySet={handleApiKeySet} />
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Input Section */}

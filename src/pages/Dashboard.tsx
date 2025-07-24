@@ -18,11 +18,19 @@ import {
   Users,
 } from 'lucide-react';
 
+interface UserStats {
+  quizzes_completed: number;
+  flashcards_created: number;
+  notes_saved: number;
+  study_plans_created: number;
+  daily_streak: number;
+  total_study_hours: number;
+}
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<UserStats>({
     quizzes_completed: 0,
     flashcards_created: 0,
     notes_saved: 0,
