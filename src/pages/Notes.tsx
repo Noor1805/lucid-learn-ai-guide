@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Search, Calendar, Trash2, Eye, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface SavedNote {
   id: string;
@@ -25,8 +26,13 @@ const Notes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNote, setSelectedNote] = useState<SavedNote | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newPara, setNewPara] = useState('');
+
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -60,6 +66,51 @@ const Notes = () => {
     }
   };
 
+  const handleCreateNote = async () => {
+    if (!newTitle.trim() || !newPara.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Title and paragraph are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newNote = {
+      title: newTitle,
+      original_text: newPara,
+      simplified_text: newPara,
+      key_points: [],
+      user_id: user?.id,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('notes')
+      .insert([newNote])
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create note.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setNotes([data, ...notes]);
+    setNewTitle('');
+    setNewPara('');
+    setShowCreateModal(false);
+
+    toast({
+      title: "Note Created",
+      description: "Your note was successfully added.",
+    });
+  };
+
   const filterNotes = () => {
     if (!searchTerm.trim()) {
       setFilteredNotes(notes);
@@ -69,7 +120,7 @@ const Notes = () => {
     const filtered = notes.filter(note =>
       note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.simplified_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.key_points.some(point => 
+      note.key_points.some(point =>
         point.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
@@ -129,16 +180,10 @@ const Notes = () => {
           className="max-w-4xl mx-auto"
         >
           <div className="flex justify-between items-center mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedNote(null)}
-            >
+            <Button variant="outline" onClick={() => setSelectedNote(null)}>
               ← Back to Notes
             </Button>
-            <Button 
-              variant="destructive"
-              onClick={() => deleteNote(selectedNote.id)}
-            >
+            <Button variant="destructive" onClick={() => deleteNote(selectedNote.id)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Note
             </Button>
@@ -217,111 +262,117 @@ const Notes = () => {
           </p>
         </div>
 
-        {notes.length === 0 ? (
-          <Card className="border-border/50 backdrop-blur-sm bg-card/90">
-            <CardContent className="text-center py-12">
-              <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">No Notes Yet</h2>
-              <p className="text-muted-foreground mb-6">
-                Start by simplifying some text to create your first note.
-              </p>
-              <Button onClick={() => window.location.href = '/simplify'}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Your First Note
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {/* Search Bar */}
-            <Card className="border-border/50 backdrop-blur-sm bg-card/90 mb-6">
-              <CardContent className="p-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search notes by title, content, or key points..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-background/50"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+        {/* Create Note Button */}
+        <div className="flex justify-end mb-4">
+          <Button onClick={() => setShowCreateModal(true)} className="bg-primary text-white">
+            ➕ Create Note
+          </Button>
+        </div>
 
-            {/* Notes Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredNotes.map((note, index) => (
-                <motion.div
-                  key={note.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Card 
-                    className="cursor-pointer border-border/50 backdrop-blur-sm bg-card/90 hover:border-primary/50 transition-all h-full"
-                    onClick={() => setSelectedNote(note)}
-                  >
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg line-clamp-2">
-                        {note.title}
-                      </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
-                        <Calendar className="h-3 w-3" />
-                        {format(new Date(note.created_at), 'MMM d, yyyy')}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                        {note.simplified_text}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <Badge variant="secondary">
-                          {note.key_points.length} key points
-                        </Badge>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedNote(note);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteNote(note.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+        {/* Create Note Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white text-black p-6 rounded-lg w-[90%] max-w-xl space-y-4 shadow-lg">
+              <h2 className="text-xl font-semibold">Create a New Note</h2>
+              <input
+                type="text"
+                placeholder="Enter title"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="w-full p-2 border rounded"
+              />
+              <textarea
+                placeholder="Write your note here..."
+                value={newPara}
+                onChange={(e) => setNewPara(e.target.value)}
+                rows={6}
+                className="w-full p-2 border rounded"
+              />
+              <div className="flex text-white justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateNote}>Save</Button>
+              </div>
             </div>
+          </div>
+        )}
 
-            {filteredNotes.length === 0 && searchTerm && (
-              <Card className="border-border/50 backdrop-blur-sm bg-card/90">
-                <CardContent className="text-center py-12">
-                  <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold mb-2">No Results Found</h2>
-                  <p className="text-muted-foreground">
-                    No notes match your search term "{searchTerm}"
+        {/* Notes Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredNotes.map((note, index) => (
+            <motion.div
+              key={note.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Card
+                className="cursor-pointer border-border/50 backdrop-blur-sm bg-card/90 hover:border-primary/50 transition-all h-full"
+                onClick={() => setSelectedNote(note)}
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg line-clamp-2">
+                    {note.title}
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-2">
+                    <Calendar className="h-3 w-3" />
+                    {format(new Date(note.created_at), 'MMM d, yyyy')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                    {note.simplified_text}
                   </p>
+
+                  <div className="flex items-center justify-between">
+  <Badge variant="secondary">
+    {note.key_points.length} key points
+  </Badge>
+  <div className="flex gap-2">
+    <Button
+      size="icon"
+      variant="outline"
+      className="hover:bg-primary hover:text-white transition-colors duration-200"
+      onClick={(e) => {
+        e.stopPropagation();
+        setSelectedNote(note);
+      }}
+    >
+      <Eye className="h-4 w-4" />
+    </Button>
+    <Button
+      size="icon"
+      variant="outline"
+      className="hover:bg-destructive hover:text-white transition-colors duration-200"
+      onClick={(e) => {
+        e.stopPropagation();
+        deleteNote(note.id);
+      }}
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </div>
+</div>
+
                 </CardContent>
               </Card>
-            )}
-          </>
+            </motion.div>
+          ))}
+        </div>
+
+        {filteredNotes.length === 0 && searchTerm && (
+          <Card className="border-border/50 backdrop-blur-sm bg-card/90">
+            <CardContent className="text-center py-12">
+              <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">No Results Found</h2>
+              <p className="text-muted-foreground">
+                No notes match your search term "{searchTerm}"
+              </p>
+            </CardContent>
+          </Card>
         )}
       </motion.div>
     </div>
@@ -329,3 +380,4 @@ const Notes = () => {
 };
 
 export default Notes;
+
