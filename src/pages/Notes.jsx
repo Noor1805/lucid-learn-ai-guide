@@ -11,20 +11,12 @@ import { BookOpen, Search, Calendar, Trash2, Eye, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
-interface SavedNote {
-  id: string;
-  title: string;
-  original_text: string;
-  simplified_text: string;
-  key_points: string[];
-  created_at: string;
-}
 
 const Notes = () => {
-  const [notes, setNotes] = useState<SavedNote[]>([]);
-  const [filteredNotes, setFilteredNotes] = useState<SavedNote[]>([]);
+  const [notes, setNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedNote, setSelectedNote] = useState<SavedNote | null>(null);
+  const [selectedNote, setSelectedNote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -49,7 +41,7 @@ const Notes = () => {
       const { data, error } = await supabase
         .from('notes')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -127,13 +119,13 @@ const Notes = () => {
     setFilteredNotes(filtered);
   };
 
-  const deleteNote = async (noteId: string) => {
+  const deleteNote = async (noteId) => {
     try {
       const { error } = await supabase
         .from('notes')
         .delete()
         .eq('id', noteId)
-        .eq('user_id', user!.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
