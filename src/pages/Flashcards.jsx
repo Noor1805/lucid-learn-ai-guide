@@ -12,17 +12,12 @@ import { Target, Plus, RotateCcw, Save, BookOpen, ArrowLeft, ArrowRight } from '
 import { geminiService } from '@/lib/gemini';
 
 
-interface FlashcardDeck {
-  id?: string;
-  deck_name: string;
-  cards: Flashcard[];
-}
 
 const Flashcards = () => {
   const [inputText, setInputText] = useState('');
   const [deckName, setDeckName] = useState('');
-  const [currentDeck, setCurrentDeck] = useState<FlashcardDeck | null>(null);
-  const [savedDecks, setSavedDecks] = useState<FlashcardDeck[]>([]);
+  const [currentDeck, setCurrentDeck] = useState(null);
+  const [savedDecks, setSavedDecks] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,13 +36,13 @@ const Flashcards = () => {
       const { data, error } = await supabase
         .from('flashcards')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setSavedDecks((data || []).map(deck => ({
         ...deck,
-        cards: deck.cards as unknown as Flashcard[]
+        cards: deck.cards
       })));
     } catch (error) {
       console.error('Error loading decks:', error);
@@ -67,7 +62,7 @@ const Flashcards = () => {
     setLoading(true);
     try {
       const cards = await geminiService.generateFlashcards(inputText);
-      const newDeck: FlashcardDeck = {
+      const newDeck = {
         deck_name: deckName,
         cards,
       };
@@ -92,7 +87,7 @@ const Flashcards = () => {
       const { error } = await supabase.from('flashcards').insert({
         user_id: user.id,
         deck_name: currentDeck.deck_name,
-        cards: currentDeck.cards as any,
+        cards: currentDeck.cards,
       });
 
       if (error) throw error;
@@ -112,7 +107,7 @@ const Flashcards = () => {
     }
   };
 
-  const loadDeck = (deck: FlashcardDeck) => {
+  const loadDeck = (deck) => {
     setCurrentDeck(deck);
     setCurrentCardIndex(0);
     setIsFlipped(false);
