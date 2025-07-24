@@ -50,14 +50,14 @@ const Quiz = () => {
     }
   };
 
-  const handleAnswerSelect = (answerIndex: number) => {
+  const handleAnswerSelect = (answerIndex) => {
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestion] = answerIndex;
     setSelectedAnswers(newAnswers);
   };
 
   const nextQuestion = () => {
-    if (currentQuestion < quiz!.questions.length - 1) {
+    if (currentQuestion < quiz.questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       finishQuiz();
@@ -77,7 +77,7 @@ const Quiz = () => {
         await supabase.from('quizzes').insert({
           user_id: user.id,
           title: quiz.title,
-          questions: quiz.questions as any,
+          questions: quiz.questions,
           score,
           total_questions: quiz.questions.length,
           completed_at: new Date().toISOString(),
