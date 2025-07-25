@@ -20,7 +20,7 @@ const Navbar = () => {
 
   const guestNavItems = [
     { name: 'Home', path: '/' },
-    { name: 'Features', path: '/#features' },
+    { name: 'Features', path: 'features' }, // Special scroll handling
   ];
 
   const userNavItems = [
@@ -41,6 +41,17 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const handleFeatureClick = async () => {
+    if (location.pathname !== '/') {
+      await navigate('/');
+      setTimeout(() => {
+        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <motion.nav 
       initial={{ opacity: 0, y: -20 }}
@@ -57,27 +68,38 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.slice(0, 6).map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`relative px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive(item.path)
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {item.name}
-                {isActive(item.path) && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </Link>
-            ))}
+            {navItems.slice(0, 6).map((item) => {
+              const isFeature = item.name === 'Features';
+              return (
+                <a
+                  key={item.name}
+                  href={isFeature ? '#features' : item.path}
+                  onClick={(e) => {
+                    if (isFeature) {
+                      e.preventDefault();
+                      handleFeatureClick();
+                    } else {
+                      navigate(item.path);
+                    }
+                  }}
+                  className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                    isActive(item.path)
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {item.name}
+                  {isActive(item.path) && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </a>
+              );
+            })}
           </div>
 
           {/* Right side */}
@@ -140,20 +162,32 @@ const Navbar = () => {
             className="md:hidden border-t border-white/10"
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`block px-3 py-2 text-base font-medium transition-colors ${
-                    isActive(item.path)
-                      ? 'text-primary bg-white/5'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
-                  }`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isFeature = item.name === 'Features';
+                return (
+                  <a
+                    key={item.name}
+                    href={isFeature ? '#features' : item.path}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsOpen(false);
+                      if (isFeature) {
+                        handleFeatureClick();
+                      } else {
+                        navigate(item.path);
+                      }
+                    }}
+                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                      isActive(item.path)
+                        ? 'text-primary bg-white/5'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                    }`}
+                  >
+                    {item.name}
+                  </a>
+                );
+              })}
+
               <div className="pt-4 space-y-2">
                 {user ? (
                   <>
